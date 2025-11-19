@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, isDemoMode } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
+import { mockRoutines, generateId } from '../lib/mockData';
 import type { Routine, TimeOfDay } from '../types/database';
 
 export function useRoutines() {
@@ -12,6 +13,13 @@ export function useRoutines() {
     if (!user) return;
 
     setLoading(true);
+
+    if (isDemoMode) {
+      setRoutines([...mockRoutines]);
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase
       .from('routines')
       .select('*')
@@ -38,6 +46,23 @@ export function useRoutines() {
   }) => {
     if (!user) return { error: new Error('Not authenticated') };
 
+    const newRoutine: Routine = {
+      id: generateId(),
+      user_id: user.id,
+      date: routine.date ?? new Date().toISOString().split('T')[0],
+      time_of_day: routine.time_of_day,
+      product_ids: routine.product_ids,
+      notes: routine.notes,
+      photo_url: routine.photo_url,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    if (isDemoMode) {
+      setRoutines((prev) => [newRoutine, ...prev]);
+      return { data: newRoutine, error: null };
+    }
+
     const { data, error } = await supabase
       .from('routines')
       .insert({
@@ -56,6 +81,12 @@ export function useRoutines() {
   };
 
   const updateRoutine = async (id: string, updates: Partial<Routine>) => {
+    if (isDemoMode) {
+      const updatedRoutine = { ...routines.find((r) => r.id === id)!, ...updates, updated_at: new Date().toISOString() };
+      setRoutines((prev) => prev.map((r) => (r.id === id ? updatedRoutine : r)));
+      return { data: updatedRoutine, error: null };
+    }
+
     const { data, error } = await supabase
       .from('routines')
       .update(updates)
@@ -73,6 +104,11 @@ export function useRoutines() {
   };
 
   const deleteRoutine = async (id: string) => {
+    if (isDemoMode) {
+      setRoutines((prev) => prev.filter((r) => r.id !== id));
+      return { error: null };
+    }
+
     const { error } = await supabase
       .from('routines')
       .delete()

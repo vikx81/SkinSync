@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, isDemoMode } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
+import { mockProducts, generateId } from '../lib/mockData';
 import type { Product, ProductCategory, ProductStatus } from '../types/database';
 
 export function useProducts() {
@@ -12,6 +13,13 @@ export function useProducts() {
     if (!user) return;
 
     setLoading(true);
+
+    if (isDemoMode) {
+      setProducts([...mockProducts]);
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase
       .from('products')
       .select('*')
@@ -38,6 +46,25 @@ export function useProducts() {
   }) => {
     if (!user) return { error: new Error('Not authenticated') };
 
+    const newProduct: Product = {
+      id: generateId(),
+      user_id: user.id,
+      product_name: product.product_name,
+      brand: product.brand,
+      category: product.category,
+      status: 'active' as ProductStatus,
+      is_retinol: product.is_retinol ?? product.category === 'retinol',
+      date_started: product.date_started ?? new Date().toISOString().split('T')[0],
+      notes: product.notes,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    if (isDemoMode) {
+      setProducts((prev) => [newProduct, ...prev]);
+      return { data: newProduct, error: null };
+    }
+
     const { data, error } = await supabase
       .from('products')
       .insert({
@@ -58,6 +85,12 @@ export function useProducts() {
   };
 
   const updateProduct = async (id: string, updates: Partial<Product>) => {
+    if (isDemoMode) {
+      const updatedProduct = { ...products.find((p) => p.id === id)!, ...updates, updated_at: new Date().toISOString() };
+      setProducts((prev) => prev.map((p) => (p.id === id ? updatedProduct : p)));
+      return { data: updatedProduct, error: null };
+    }
+
     const { data, error } = await supabase
       .from('products')
       .update(updates)
@@ -91,6 +124,11 @@ export function useProducts() {
   };
 
   const deleteProduct = async (id: string) => {
+    if (isDemoMode) {
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+      return { error: null };
+    }
+
     const { error } = await supabase
       .from('products')
       .delete()

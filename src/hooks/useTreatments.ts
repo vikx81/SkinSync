@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, isDemoMode } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
+import { mockTreatments, generateId } from '../lib/mockData';
 import type { Treatment, TreatmentType } from '../types/database';
 import { addDays, isWithinInterval, parseISO } from 'date-fns';
 
@@ -13,6 +14,13 @@ export function useTreatments() {
     if (!user) return;
 
     setLoading(true);
+
+    if (isDemoMode) {
+      setTreatments([...mockTreatments]);
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase
       .from('treatments')
       .select('*')
@@ -38,6 +46,23 @@ export function useTreatments() {
   }) => {
     if (!user) return { error: new Error('Not authenticated') };
 
+    const newTreatment: Treatment = {
+      id: generateId(),
+      user_id: user.id,
+      treatment_type: treatment.treatment_type,
+      date: treatment.date ?? new Date().toISOString().split('T')[0],
+      notes: treatment.notes,
+      photo_url: treatment.photo_url,
+      buffer_days: treatment.buffer_days ?? 7,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    if (isDemoMode) {
+      setTreatments((prev) => [newTreatment, ...prev]);
+      return { data: newTreatment, error: null };
+    }
+
     const { data, error } = await supabase
       .from('treatments')
       .insert({
@@ -57,6 +82,12 @@ export function useTreatments() {
   };
 
   const updateTreatment = async (id: string, updates: Partial<Treatment>) => {
+    if (isDemoMode) {
+      const updatedTreatment = { ...treatments.find((t) => t.id === id)!, ...updates, updated_at: new Date().toISOString() };
+      setTreatments((prev) => prev.map((t) => (t.id === id ? updatedTreatment : t)));
+      return { data: updatedTreatment, error: null };
+    }
+
     const { data, error } = await supabase
       .from('treatments')
       .update(updates)
@@ -74,6 +105,11 @@ export function useTreatments() {
   };
 
   const deleteTreatment = async (id: string) => {
+    if (isDemoMode) {
+      setTreatments((prev) => prev.filter((t) => t.id !== id));
+      return { error: null };
+    }
+
     const { error } = await supabase
       .from('treatments')
       .delete()

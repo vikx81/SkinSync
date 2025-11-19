@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { supabase } from '../lib/supabase';
+import { supabase, isDemoMode } from '../lib/supabase';
+import { mockUserSettings } from '../lib/mockData';
 import type { UserSettings } from '../types/database';
 
 interface SettingsState {
@@ -21,6 +22,16 @@ export const useSettingsStore = create<SettingsState>()(
 
       fetchSettings: async (userId: string) => {
         set({ loading: true });
+
+        if (isDemoMode) {
+          set({
+            settings: { ...mockUserSettings, user_id: userId },
+            darkMode: mockUserSettings.dark_mode,
+            loading: false
+          });
+          return;
+        }
+
         const { data, error } = await supabase
           .from('user_settings')
           .select('*')
@@ -42,6 +53,14 @@ export const useSettingsStore = create<SettingsState>()(
         const { settings } = get();
         if (!settings) return;
 
+        if (isDemoMode) {
+          set({
+            settings: { ...settings, ...updates },
+            darkMode: updates.dark_mode ?? get().darkMode
+          });
+          return;
+        }
+
         const { error } = await supabase
           .from('user_settings')
           .update(updates)
@@ -61,10 +80,15 @@ export const useSettingsStore = create<SettingsState>()(
 
         const { settings } = get();
         if (settings) {
-          supabase
-            .from('user_settings')
-            .update({ dark_mode: newDarkMode })
-            .eq('id', settings.id);
+          if (!isDemoMode) {
+            supabase
+              .from('user_settings')
+              .update({ dark_mode: newDarkMode })
+              .eq('id', settings.id);
+          }
+          set({
+            settings: { ...settings, dark_mode: newDarkMode }
+          });
         }
 
         if (newDarkMode) {

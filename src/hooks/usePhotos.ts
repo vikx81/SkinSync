@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase, uploadPhoto, deletePhoto as deletePhotoFromStorage } from '../lib/supabase';
+import { supabase, uploadPhoto, deletePhoto as deletePhotoFromStorage, isDemoMode } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
+import { mockPhotos, generateId } from '../lib/mockData';
 import type { Photo } from '../types/database';
 
 export function usePhotos() {
@@ -12,6 +13,13 @@ export function usePhotos() {
     if (!user) return;
 
     setLoading(true);
+
+    if (isDemoMode) {
+      setPhotos([...mockPhotos]);
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase
       .from('photos')
       .select('*')
@@ -45,6 +53,23 @@ export function usePhotos() {
       return { error: new Error('Failed to upload photo') };
     }
 
+    const newPhoto: Photo = {
+      id: generateId(),
+      user_id: user.id,
+      url,
+      date: options.date ?? new Date().toISOString().split('T')[0],
+      category: options.category,
+      routine_id: options.routine_id,
+      treatment_id: options.treatment_id,
+      notes: options.notes,
+      created_at: new Date().toISOString(),
+    };
+
+    if (isDemoMode) {
+      setPhotos((prev) => [newPhoto, ...prev]);
+      return { data: newPhoto, error: null };
+    }
+
     const { data, error } = await supabase
       .from('photos')
       .insert({
@@ -71,6 +96,11 @@ export function usePhotos() {
     if (!photo) return { error: new Error('Photo not found') };
 
     await deletePhotoFromStorage(photo.url);
+
+    if (isDemoMode) {
+      setPhotos((prev) => prev.filter((p) => p.id !== id));
+      return { error: null };
+    }
 
     const { error } = await supabase
       .from('photos')

@@ -1,20 +1,27 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '../types/database';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
-}
+// Check if we're in demo mode (no Supabase credentials)
+export const isDemoMode = !supabaseUrl || !supabaseAnonKey;
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+// Create a mock client for demo mode or real client for production
+export const supabase: SupabaseClient<Database> = isDemoMode
+  ? (null as unknown as SupabaseClient<Database>)
+  : createClient<Database>(supabaseUrl, supabaseAnonKey);
 
 export const uploadPhoto = async (
   file: File,
   userId: string,
   folder: string = 'progress'
 ): Promise<string | null> => {
+  if (isDemoMode) {
+    // In demo mode, create a local URL for the file
+    return URL.createObjectURL(file);
+  }
+
   const fileExt = file.name.split('.').pop();
   const fileName = `${userId}/${folder}/${Date.now()}.${fileExt}`;
 
@@ -35,6 +42,12 @@ export const uploadPhoto = async (
 };
 
 export const deletePhoto = async (url: string): Promise<boolean> => {
+  if (isDemoMode) {
+    // In demo mode, just revoke the object URL
+    URL.revokeObjectURL(url);
+    return true;
+  }
+
   const path = url.split('/photos/')[1];
   if (!path) return false;
 
