@@ -87,6 +87,7 @@ export interface UserSettings {
   reminder_time: string;
   retinol_reminder_enabled: boolean;
   product_evaluation_days: number;
+  skin_profile?: string; // JSON string of SkinProfile
   created_at: string;
   updated_at: string;
 }
