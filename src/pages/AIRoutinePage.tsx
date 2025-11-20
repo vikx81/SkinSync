@@ -64,10 +64,14 @@ export function AIRoutinePage() {
   }, [recommendation]);
 
   const handleQuizComplete = async (profile: SkinProfile) => {
-    if (!settings) return;
-    await updateSettings({ skin_profile: JSON.stringify(profile) });
+    // Immediately hide quiz and show routine page
     setQuizDismissed(true);
     setShowQuiz(false);
+
+    // Update settings in background
+    if (settings) {
+      updateSettings({ skin_profile: JSON.stringify(profile) });
+    }
   };
 
   const handleQuizSkip = () => {
