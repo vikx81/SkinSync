@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { Plus, Calendar, Trash2, Edit2, X, Camera } from 'lucide-react';
+import { Plus, Calendar, Trash2, Edit2, X, Camera, Syringe } from 'lucide-react';
 import { useTreatments } from '../hooks/useTreatments';
 import { uploadPhoto } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
@@ -123,30 +123,41 @@ export function TreatmentsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Treatments
-        </h1>
-        {!showForm && (
-          <button
-            onClick={() => setShowForm(true)}
-            className="btn-primary flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Add
-          </button>
-        )}
+    <div className="space-y-6 pb-6">
+      {/* Header */}
+      <div className="glass rounded-3xl p-6 shadow-soft-lg">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-500 to-accent-700 flex items-center justify-center">
+              <Syringe className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="section-header">Treatments</h1>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Professional skincare treatments
+              </p>
+            </div>
+          </div>
+          {!showForm && (
+            <button
+              onClick={() => setShowForm(true)}
+              className="btn-primary flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Add
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Add/Edit Form */}
       {showForm && (
-        <div className="card p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-gray-900 dark:text-white">
+        <div className="card p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-bold text-lg text-gray-900 dark:text-white">
               {editingId ? 'Edit Treatment' : 'Log Treatment'}
             </h2>
-            <button onClick={resetForm} className="text-gray-400 hover:text-gray-600">
+            <button onClick={resetForm} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -190,8 +201,8 @@ export function TreatmentsPage() {
                 max={30}
                 className="input"
               />
-              <p className="text-xs text-gray-500 mt-1">
-                Retinol will be hidden {bufferDays} days before and after treatment
+              <p className="text-xs text-primary-600 dark:text-primary-400 mt-1">
+                💡 Retinol will be hidden {bufferDays} days before and after treatment
               </p>
             </div>
 
@@ -212,7 +223,7 @@ export function TreatmentsPage() {
                   <img
                     src={photoPreview}
                     alt="Preview"
-                    className="w-full h-32 object-cover rounded-lg"
+                    className="w-full h-40 object-cover rounded-xl"
                   />
                   <button
                     type="button"
@@ -220,15 +231,15 @@ export function TreatmentsPage() {
                       setPhotoFile(null);
                       setPhotoPreview(null);
                     }}
-                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full"
+                    className="absolute top-3 right-3 p-2 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-soft transition-colors"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-primary-500 transition-colors">
-                  <Camera className="w-6 h-6 text-gray-400" />
-                  <span className="mt-1 text-sm text-gray-500">Add photo</span>
+                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-primary-500 dark:hover:border-primary-400 transition-all bg-gray-50 dark:bg-gray-800/30">
+                  <Camera className="w-7 h-7 text-gray-400" />
+                  <span className="mt-2 text-sm font-medium text-gray-600 dark:text-gray-400">Add photo</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -253,44 +264,57 @@ export function TreatmentsPage() {
 
       {/* Treatments List */}
       {loading ? (
-        <p className="text-gray-500 dark:text-gray-400 text-center py-8">
-          Loading treatments...
-        </p>
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+        </div>
       ) : treatments.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500 dark:text-gray-400">No treatments logged yet</p>
+        <div className="card p-8 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent-100 to-accent-200 dark:from-accent-900/20 dark:to-accent-800/20 flex items-center justify-center mx-auto mb-4">
+            <Syringe className="w-8 h-8 text-accent-600 dark:text-accent-400" />
+          </div>
+          <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-2">
+            No Treatments Yet
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Log your first professional treatment to track retinol buffer periods.
+          </p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {treatments.map((treatment) => (
-            <div key={treatment.id} className="card p-4">
-              <div className="flex items-start justify-between">
+            <div key={treatment.id} className="card p-5">
+              <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 dark:text-white">
-                    {treatment.treatment_type}
-                  </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-bold text-gray-900 dark:text-white">
+                      {treatment.treatment_type}
+                    </h3>
+                    <span className="badge-info text-xs">
+                      {treatment.buffer_days}d buffer
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                    <Calendar className="w-3.5 h-3.5" />
                     {format(new Date(treatment.date), 'MMMM d, yyyy')}
                   </p>
-                  <p className="text-xs text-primary-600 dark:text-primary-400 mt-1">
-                    Buffer: {treatment.buffer_days} days
-                  </p>
                   {treatment.notes && (
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mt-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
                       {treatment.notes}
                     </p>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 ml-3">
                   <button
                     onClick={() => handleEdit(treatment)}
-                    className="p-2 text-gray-400 hover:text-primary-600"
+                    className="p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+                    title="Edit"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(treatment.id)}
-                    className="p-2 text-gray-400 hover:text-red-600"
+                    className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+                    title="Delete"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -300,7 +324,7 @@ export function TreatmentsPage() {
                 <img
                   src={treatment.photo_url}
                   alt="Treatment"
-                  className="mt-3 w-full h-32 object-cover rounded-lg"
+                  className="w-full h-48 object-cover rounded-xl"
                 />
               )}
             </div>

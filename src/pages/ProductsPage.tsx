@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { Plus, Edit2, Trash2, Archive, RotateCcw, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, Archive, RotateCcw, X, Package } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import type { ProductCategory } from '../types/database';
 import toast from 'react-hot-toast';
@@ -144,40 +144,51 @@ export function ProductsPage() {
   const displayProducts = showRetired ? retiredProducts : activeProducts;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Product Library
-        </h1>
-        {!showForm && (
-          <button
-            onClick={() => setShowForm(true)}
-            className="btn-primary flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Add
-          </button>
-        )}
+    <div className="space-y-6 pb-6">
+      {/* Header */}
+      <div className="glass rounded-3xl p-6 shadow-soft-lg">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center">
+              <Package className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="section-header">Product Library</h1>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {activeProducts.length} active • {retiredProducts.length} retired
+              </p>
+            </div>
+          </div>
+          {!showForm && (
+            <button
+              onClick={() => setShowForm(true)}
+              className="btn-primary flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Add
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Toggle Active/Retired */}
-      <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+      <div className="flex glass rounded-2xl p-1 shadow-soft">
         <button
           onClick={() => setShowRetired(false)}
-          className={`flex-1 py-2 text-sm rounded-md transition-colors ${
+          className={`flex-1 py-3 text-sm font-medium rounded-xl transition-all ${
             !showRetired
-              ? 'bg-white dark:bg-gray-600 text-primary-600 shadow-sm'
-              : 'text-gray-500 dark:text-gray-400'
+              ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-soft'
+              : 'text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400'
           }`}
         >
           Active ({activeProducts.length})
         </button>
         <button
           onClick={() => setShowRetired(true)}
-          className={`flex-1 py-2 text-sm rounded-md transition-colors ${
+          className={`flex-1 py-3 text-sm font-medium rounded-xl transition-all ${
             showRetired
-              ? 'bg-white dark:bg-gray-600 text-primary-600 shadow-sm'
-              : 'text-gray-500 dark:text-gray-400'
+              ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-soft'
+              : 'text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400'
           }`}
         >
           Retired ({retiredProducts.length})
@@ -186,12 +197,12 @@ export function ProductsPage() {
 
       {/* Add/Edit Form */}
       {showForm && (
-        <div className="card p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-gray-900 dark:text-white">
+        <div className="card p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-bold text-lg text-gray-900 dark:text-white">
               {editingId ? 'Edit Product' : 'Add Product'}
             </h2>
-            <button onClick={resetForm} className="text-gray-400 hover:text-gray-600">
+            <button onClick={resetForm} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -288,63 +299,69 @@ export function ProductsPage() {
 
       {/* Products List */}
       {loading ? (
-        <p className="text-gray-500 dark:text-gray-400 text-center py-8">
-          Loading products...
-        </p>
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+        </div>
       ) : displayProducts.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500 dark:text-gray-400">
-            {showRetired ? 'No retired products' : 'No products yet. Add your first one!'}
+        <div className="card p-8 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
+            <Package className="w-8 h-8 text-gray-400" />
+          </div>
+          <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-2">
+            {showRetired ? 'No Retired Products' : 'No Products Yet'}
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {showRetired ? 'Products you retire will appear here.' : 'Add your first product to get started!'}
           </p>
         </div>
       ) : (
         <div className="space-y-3">
           {displayProducts.map((product) => (
-            <div key={product.id} className="card p-4">
+            <div key={product.id} className="card p-5">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-semibold text-gray-900 dark:text-white">
                       {product.product_name}
                     </h3>
                     {product.is_retinol && (
-                      <span className="text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 px-2 py-0.5 rounded">
+                      <span className="badge-warning text-xs">
                         Retinol
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     {product.brand && `${product.brand} • `}
-                    {product.category}
+                    <span className="capitalize">{product.category.replace(/-/g, ' ')}</span>
                   </p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
                     Started: {format(new Date(product.date_started), 'MMM d, yyyy')}
                   </p>
                   {product.status === 'retired' && product.date_stopped && (
-                    <p className="text-xs text-gray-400 dark:text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-gray-500">
                       Stopped: {format(new Date(product.date_stopped), 'MMM d, yyyy')}
-                      {product.reason_stopped && ` - ${product.reason_stopped}`}
+                      {product.reason_stopped && ` • ${product.reason_stopped}`}
                     </p>
                   )}
                   {product.notes && (
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
                       {product.notes}
                     </p>
                   )}
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 ml-3">
                   {product.status === 'active' ? (
                     <>
                       <button
                         onClick={() => handleEdit(product)}
-                        className="p-2 text-gray-400 hover:text-primary-600"
+                        className="p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
                         title="Edit"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => setShowRetireModal(product.id)}
-                        className="p-2 text-gray-400 hover:text-yellow-600"
+                        className="p-2 text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
                         title="Retire"
                       >
                         <Archive className="w-4 h-4" />
@@ -354,14 +371,14 @@ export function ProductsPage() {
                     <>
                       <button
                         onClick={() => handleReactivate(product.id)}
-                        className="p-2 text-gray-400 hover:text-green-600"
+                        className="p-2 text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
                         title="Reactivate"
                       >
                         <RotateCcw className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(product.id)}
-                        className="p-2 text-gray-400 hover:text-red-600"
+                        className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
                         title="Delete"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -377,15 +394,15 @@ export function ProductsPage() {
 
       {/* Retire Modal */}
       {showRetireModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-sm">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="glass rounded-3xl p-6 w-full max-w-sm shadow-soft-lg">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
               Retire Product
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
               This product will be moved to retired and won't appear in routine dropdowns.
             </p>
-            <div className="mb-4">
+            <div className="mb-6">
               <label className="label">Reason (optional)</label>
               <input
                 type="text"
@@ -395,7 +412,7 @@ export function ProductsPage() {
                 placeholder="e.g., Finished, didn't work well..."
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <button
                 onClick={() => {
                   setShowRetireModal(null);

@@ -8,6 +8,7 @@ import {
   Clock,
   Camera,
   ChevronRight,
+  User,
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useSettingsStore } from '../store/settingsStore';
@@ -193,100 +194,121 @@ export function ProfilePage() {
   const availableDates = [...new Set(photos.map((p) => p.date))].sort().reverse();
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Profile</h1>
-
-      {/* User Info */}
-      <div className="card p-4">
-        <p className="text-sm text-gray-500 dark:text-gray-400">Signed in as</p>
-        <p className="font-medium text-gray-900 dark:text-white">{user?.email}</p>
+    <div className="space-y-6 pb-6">
+      {/* Header */}
+      <div className="glass rounded-3xl p-6 shadow-soft-lg">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center">
+            <User className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h1 className="section-header">Profile</h1>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {user?.email}
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Settings */}
-      <div className="card divide-y divide-gray-200 dark:divide-gray-700">
+      <div className="card overflow-hidden">
         {/* Dark Mode */}
         <button
           onClick={toggleDarkMode}
-          className="w-full flex items-center justify-between p-4"
+          className="w-full flex items-center justify-between p-5 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
         >
           <div className="flex items-center gap-3">
-            {darkMode ? (
-              <Moon className="w-5 h-5 text-gray-400" />
-            ) : (
-              <Sun className="w-5 h-5 text-gray-400" />
-            )}
-            <span className="text-gray-900 dark:text-white">Dark Mode</span>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+              darkMode ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-yellow-100 dark:bg-yellow-900/30'
+            }`}>
+              {darkMode ? (
+                <Moon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              ) : (
+                <Sun className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+              )}
+            </div>
+            <span className="font-medium text-gray-900 dark:text-white">Dark Mode</span>
           </div>
           <div
-            className={`w-10 h-6 rounded-full transition-colors ${
-              darkMode ? 'bg-primary-600' : 'bg-gray-300'
+            className={`w-12 h-7 rounded-full transition-all shadow-inner ${
+              darkMode ? 'bg-gradient-to-r from-primary-500 to-primary-600' : 'bg-gray-300 dark:bg-gray-600'
             }`}
           >
             <div
-              className={`w-4 h-4 bg-white rounded-full mt-1 transition-transform ${
-                darkMode ? 'translate-x-5' : 'translate-x-1'
+              className={`w-5 h-5 bg-white rounded-full mt-1 transition-transform shadow-soft ${
+                darkMode ? 'translate-x-6' : 'translate-x-1'
               }`}
             />
           </div>
         </button>
 
         {/* Notifications */}
-        <button
-          onClick={handleNotificationToggle}
-          className="w-full flex items-center justify-between p-4"
-        >
-          <div className="flex items-center gap-3">
-            <Bell className="w-5 h-5 text-gray-400" />
-            <span className="text-gray-900 dark:text-white">Notifications</span>
-          </div>
-          <div
-            className={`w-10 h-6 rounded-full transition-colors ${
-              settings?.notifications_enabled ? 'bg-primary-600' : 'bg-gray-300'
-            }`}
+        <div className="border-t border-gray-200 dark:border-gray-700">
+          <button
+            onClick={handleNotificationToggle}
+            className="w-full flex items-center justify-between p-5 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
           >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                <Bell className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              </div>
+              <span className="font-medium text-gray-900 dark:text-white">Notifications</span>
+            </div>
             <div
-              className={`w-4 h-4 bg-white rounded-full mt-1 transition-transform ${
-                settings?.notifications_enabled ? 'translate-x-5' : 'translate-x-1'
+              className={`w-12 h-7 rounded-full transition-all shadow-inner ${
+                settings?.notifications_enabled ? 'bg-gradient-to-r from-primary-500 to-primary-600' : 'bg-gray-300 dark:bg-gray-600'
               }`}
-            />
-          </div>
-        </button>
+            >
+              <div
+                className={`w-5 h-5 bg-white rounded-full mt-1 transition-transform shadow-soft ${
+                  settings?.notifications_enabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </div>
+          </button>
+        </div>
 
         {/* Retinol Reminders */}
-        <button
-          onClick={handleRetinolReminderToggle}
-          className="w-full flex items-center justify-between p-4"
-        >
-          <div className="flex items-center gap-3">
-            <Clock className="w-5 h-5 text-gray-400" />
-            <div className="text-left">
-              <span className="text-gray-900 dark:text-white block">Retinol Reminders</span>
-              <span className="text-xs text-gray-500">Remind to use retinol products</span>
-            </div>
-          </div>
-          <div
-            className={`w-10 h-6 rounded-full transition-colors ${
-              settings?.retinol_reminder_enabled ? 'bg-primary-600' : 'bg-gray-300'
-            }`}
+        <div className="border-t border-gray-200 dark:border-gray-700">
+          <button
+            onClick={handleRetinolReminderToggle}
+            className="w-full flex items-center justify-between p-5 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
           >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center">
+                <Clock className="w-5 h-5 text-accent-600 dark:text-accent-400" />
+              </div>
+              <div className="text-left">
+                <span className="font-medium text-gray-900 dark:text-white block">Retinol Reminders</span>
+                <span className="text-xs text-gray-600 dark:text-gray-400">Remind to use retinol products</span>
+              </div>
+            </div>
             <div
-              className={`w-4 h-4 bg-white rounded-full mt-1 transition-transform ${
-                settings?.retinol_reminder_enabled ? 'translate-x-5' : 'translate-x-1'
+              className={`w-12 h-7 rounded-full transition-all shadow-inner ${
+                settings?.retinol_reminder_enabled ? 'bg-gradient-to-r from-primary-500 to-primary-600' : 'bg-gray-300 dark:bg-gray-600'
               }`}
-            />
-          </div>
-        </button>
+            >
+              <div
+                className={`w-5 h-5 bg-white rounded-full mt-1 transition-transform shadow-soft ${
+                  settings?.retinol_reminder_enabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </div>
+          </button>
+        </div>
       </div>
 
       {/* Progress Photos */}
-      <div className="card p-4">
+      <div className="card overflow-hidden">
         <button
           onClick={() => setShowPhotoComparison(!showPhotoComparison)}
-          className="w-full flex items-center justify-between"
+          className="w-full flex items-center justify-between p-5 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
         >
           <div className="flex items-center gap-3">
-            <Camera className="w-5 h-5 text-gray-400" />
-            <span className="text-gray-900 dark:text-white">Photo Comparison</span>
+            <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+              <Camera className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            </div>
+            <span className="font-medium text-gray-900 dark:text-white">Photo Comparison</span>
           </div>
           <ChevronRight
             className={`w-5 h-5 text-gray-400 transition-transform ${
@@ -331,8 +353,8 @@ export function ProfilePage() {
             </div>
 
             {(photo1 || photo2) && (
-              <div className="grid grid-cols-2 gap-2">
-                <div className="aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="aspect-square bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden">
                   {photo1 ? (
                     <img src={photo1.url} alt="Before" className="w-full h-full object-cover" />
                   ) : (
@@ -341,7 +363,7 @@ export function ProfilePage() {
                     </div>
                   )}
                 </div>
-                <div className="aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+                <div className="aspect-square bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden">
                   {photo2 ? (
                     <img src={photo2.url} alt="After" className="w-full h-full object-cover" />
                   ) : (
@@ -363,45 +385,51 @@ export function ProfilePage() {
       </div>
 
       {/* Export */}
-      <div className="card divide-y divide-gray-200 dark:divide-gray-700">
+      <div className="card overflow-hidden">
         <button
           onClick={exportToCSV}
-          className="w-full flex items-center gap-3 p-4 text-left"
+          className="w-full flex items-center gap-3 p-5 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
         >
-          <Download className="w-5 h-5 text-gray-400" />
+          <div className="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+            <Download className="w-5 h-5 text-green-600 dark:text-green-400" />
+          </div>
           <div>
-            <span className="text-gray-900 dark:text-white block">Export to CSV</span>
-            <span className="text-xs text-gray-500">Download all data as spreadsheet</span>
+            <span className="font-medium text-gray-900 dark:text-white block">Export to CSV</span>
+            <span className="text-xs text-gray-600 dark:text-gray-400">Download all data as spreadsheet</span>
           </div>
         </button>
 
-        <button
-          onClick={exportToPDF}
-          className="w-full flex items-center gap-3 p-4 text-left"
-        >
-          <Download className="w-5 h-5 text-gray-400" />
-          <div>
-            <span className="text-gray-900 dark:text-white block">Export to PDF</span>
-            <span className="text-xs text-gray-500">Download summary report</span>
-          </div>
-        </button>
+        <div className="border-t border-gray-200 dark:border-gray-700">
+          <button
+            onClick={exportToPDF}
+            className="w-full flex items-center gap-3 p-5 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+          >
+            <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+              <Download className="w-5 h-5 text-red-600 dark:text-red-400" />
+            </div>
+            <div>
+              <span className="font-medium text-gray-900 dark:text-white block">Export to PDF</span>
+              <span className="text-xs text-gray-600 dark:text-gray-400">Download summary report</span>
+            </div>
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
-      <div className="card p-4">
-        <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Your Stats</h3>
+      <div className="card p-6">
+        <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-4">Your Stats</h3>
         <div className="grid grid-cols-3 gap-4 text-center">
-          <div>
-            <p className="text-2xl font-bold text-primary-600">{products.length}</p>
-            <p className="text-xs text-gray-500">Products</p>
+          <div className="p-4 bg-gradient-to-br from-primary-50 to-accent-50 dark:from-primary-900/20 dark:to-accent-900/20 rounded-xl">
+            <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">{products.length}</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Products</p>
           </div>
-          <div>
-            <p className="text-2xl font-bold text-primary-600">{routines.length}</p>
-            <p className="text-xs text-gray-500">Routines</p>
+          <div className="p-4 bg-gradient-to-br from-primary-50 to-accent-50 dark:from-primary-900/20 dark:to-accent-900/20 rounded-xl">
+            <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">{routines.length}</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Routines</p>
           </div>
-          <div>
-            <p className="text-2xl font-bold text-primary-600">{treatments.length}</p>
-            <p className="text-xs text-gray-500">Treatments</p>
+          <div className="p-4 bg-gradient-to-br from-primary-50 to-accent-50 dark:from-primary-900/20 dark:to-accent-900/20 rounded-xl">
+            <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">{treatments.length}</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Treatments</p>
           </div>
         </div>
       </div>
@@ -409,7 +437,7 @@ export function ProfilePage() {
       {/* Sign Out */}
       <button
         onClick={handleSignOut}
-        className="w-full flex items-center justify-center gap-2 p-4 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+        className="w-full flex items-center justify-center gap-2 p-5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl transition-all font-medium shadow-soft hover:shadow-soft-lg"
       >
         <LogOut className="w-5 h-5" />
         Sign Out

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from 'date-fns';
-import { ChevronLeft, ChevronRight, Sun, Moon, Syringe } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sun, Moon, Syringe, History } from 'lucide-react';
 import { useRoutines } from '../hooks/useRoutines';
 import { useTreatments } from '../hooks/useTreatments';
 import { useProducts } from '../hooks/useProducts';
@@ -52,50 +52,61 @@ export function HistoryPage() {
     : sortedHistory;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Log History
-        </h1>
-        <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-          <button
-            onClick={() => setViewMode('list')}
-            className={`px-3 py-1 text-sm rounded-md transition-colors ${
-              viewMode === 'list'
-                ? 'bg-white dark:bg-gray-600 text-primary-600 shadow-sm'
-                : 'text-gray-500 dark:text-gray-400'
-            }`}
-          >
-            List
-          </button>
-          <button
-            onClick={() => setViewMode('calendar')}
-            className={`px-3 py-1 text-sm rounded-md transition-colors ${
-              viewMode === 'calendar'
-                ? 'bg-white dark:bg-gray-600 text-primary-600 shadow-sm'
-                : 'text-gray-500 dark:text-gray-400'
-            }`}
-          >
-            Calendar
-          </button>
+    <div className="space-y-6 pb-6">
+      {/* Header */}
+      <div className="glass rounded-3xl p-6 shadow-soft-lg">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center">
+              <History className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="section-header">Log History</h1>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                View your skincare journey
+              </p>
+            </div>
+          </div>
+          <div className="flex glass rounded-xl p-1 shadow-soft">
+            <button
+              onClick={() => setViewMode('list')}
+              className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${
+                viewMode === 'list'
+                  ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-soft'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400'
+              }`}
+            >
+              List
+            </button>
+            <button
+              onClick={() => setViewMode('calendar')}
+              className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${
+                viewMode === 'calendar'
+                  ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-soft'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400'
+              }`}
+            >
+              Calendar
+            </button>
+          </div>
         </div>
       </div>
 
       {viewMode === 'calendar' && (
-        <div className="card p-4">
-          <div className="flex items-center justify-between mb-4">
+        <div className="card p-6">
+          <div className="flex items-center justify-between mb-6">
             <button
               onClick={() => setCurrentMonth((d) => new Date(d.getFullYear(), d.getMonth() - 1))}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+              className="p-2 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl text-gray-600 dark:text-gray-400 transition-colors"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <h2 className="font-semibold text-gray-900 dark:text-white">
+            <h2 className="font-bold text-lg text-gray-900 dark:text-white">
               {format(currentMonth, 'MMMM yyyy')}
             </h2>
             <button
               onClick={() => setCurrentMonth((d) => new Date(d.getFullYear(), d.getMonth() + 1))}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+              className="p-2 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl text-gray-600 dark:text-gray-400 transition-colors"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -125,19 +136,19 @@ export function HistoryPage() {
                 <button
                   key={dateStr}
                   onClick={() => setSelectedDate(isSelected ? null : dateStr)}
-                  className={`aspect-square p-1 rounded-lg text-sm flex flex-col items-center justify-center gap-0.5 transition-colors ${
+                  className={`aspect-square p-1 rounded-xl text-sm flex flex-col items-center justify-center gap-0.5 transition-all ${
                     isSelected
-                      ? 'bg-primary-100 dark:bg-primary-900/30 ring-2 ring-primary-500'
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
+                      ? 'bg-gradient-to-br from-primary-100 to-accent-100 dark:from-primary-900/30 dark:to-accent-900/30 ring-2 ring-primary-500 shadow-soft'
+                      : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                  } ${isSameDay(day, new Date()) ? 'font-bold' : ''}`}
                 >
-                  <span className={isSameDay(day, new Date()) ? 'font-bold text-primary-600' : ''}>
+                  <span className={isSameDay(day, new Date()) ? 'text-primary-600 dark:text-primary-400 font-bold' : 'text-gray-700 dark:text-gray-300'}>
                     {format(day, 'd')}
                   </span>
                   <div className="flex gap-0.5">
-                    {hasAM && <Sun className="w-2.5 h-2.5 text-yellow-500" />}
-                    {hasPM && <Moon className="w-2.5 h-2.5 text-blue-500" />}
-                    {hasTreatment && <Syringe className="w-2.5 h-2.5 text-primary-500" />}
+                    {hasAM && <Sun className="w-3 h-3 text-yellow-500" />}
+                    {hasPM && <Moon className="w-3 h-3 text-blue-500" />}
+                    {hasTreatment && <Syringe className="w-3 h-3 text-accent-500" />}
                   </div>
                 </button>
               );
@@ -147,13 +158,13 @@ export function HistoryPage() {
       )}
 
       {selectedDate && (
-        <div className="flex items-center justify-between bg-primary-50 dark:bg-primary-900/20 rounded-lg px-4 py-2">
-          <span className="text-sm font-medium text-primary-700 dark:text-primary-300">
+        <div className="flex items-center justify-between glass rounded-2xl px-5 py-3 shadow-soft">
+          <span className="text-sm font-semibold text-primary-700 dark:text-primary-300">
             Showing: {format(parseISO(selectedDate), 'MMMM d, yyyy')}
           </span>
           <button
             onClick={() => setSelectedDate(null)}
-            className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
+            className="text-sm font-medium text-primary-600 dark:text-primary-400 hover:underline"
           >
             Clear filter
           </button>
@@ -161,46 +172,58 @@ export function HistoryPage() {
       )}
 
       {loading ? (
-        <p className="text-gray-500 dark:text-gray-400 text-center py-8">
-          Loading history...
-        </p>
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+        </div>
       ) : filteredHistory.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500 dark:text-gray-400">
-            {selectedDate ? 'No entries for this date' : 'No history yet'}
+        <div className="card p-8 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
+            <History className="w-8 h-8 text-gray-400" />
+          </div>
+          <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-2">
+            {selectedDate ? 'No Entries for This Date' : 'No History Yet'}
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {selectedDate ? 'Try selecting a different date.' : 'Start logging your routines and treatments to build your history.'}
           </p>
         </div>
       ) : (
         <div className="space-y-3">
           {filteredHistory.map((item) => (
-            <div key={item.id} className="card p-4">
+            <div key={item.id} className="card p-5">
               {item.type === 'routine' ? (
                 <>
-                  <div className="flex items-center gap-2 mb-2">
-                    {item.time_of_day === 'AM' ? (
-                      <Sun className="w-4 h-4 text-yellow-500" />
-                    ) : (
-                      <Moon className="w-4 h-4 text-blue-500" />
-                    )}
-                    <span className="font-medium text-gray-900 dark:text-white">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
+                      item.time_of_day === 'AM'
+                        ? 'bg-yellow-100 dark:bg-yellow-900/30'
+                        : 'bg-blue-100 dark:bg-blue-900/30'
+                    }`}>
+                      {item.time_of_day === 'AM' ? (
+                        <Sun className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+                      ) : (
+                        <Moon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      )}
+                    </div>
+                    <span className="font-bold text-gray-900 dark:text-white">
                       {item.time_of_day} Routine
                     </span>
-                    <span className="text-sm text-gray-500 dark:text-gray-400 ml-auto">
+                    <span className="text-xs text-gray-500 dark:text-gray-400 ml-auto">
                       {format(parseISO(item.date), 'MMM d, yyyy')}
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-1 mb-2">
+                  <div className="flex flex-wrap gap-2 mb-3">
                     {item.product_ids.map((id) => (
                       <span
                         key={id}
-                        className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded"
+                        className="text-xs bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 px-3 py-1 rounded-full font-medium"
                       >
                         {getProductName(id)}
                       </span>
                     ))}
                   </div>
                   {item.notes && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                    <p className="text-sm text-gray-700 dark:text-gray-300 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
                       {item.notes}
                     </p>
                   )}
@@ -208,23 +231,25 @@ export function HistoryPage() {
                     <img
                       src={item.photo_url}
                       alt="Routine"
-                      className="mt-3 w-full h-32 object-cover rounded-lg"
+                      className="mt-3 w-full h-40 object-cover rounded-xl"
                     />
                   )}
                 </>
               ) : (
                 <>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Syringe className="w-4 h-4 text-primary-500" />
-                    <span className="font-medium text-gray-900 dark:text-white">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 rounded-xl bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center">
+                      <Syringe className="w-4 h-4 text-accent-600 dark:text-accent-400" />
+                    </div>
+                    <span className="font-bold text-gray-900 dark:text-white">
                       {item.treatment_type}
                     </span>
-                    <span className="text-sm text-gray-500 dark:text-gray-400 ml-auto">
+                    <span className="text-xs text-gray-500 dark:text-gray-400 ml-auto">
                       {format(parseISO(item.date), 'MMM d, yyyy')}
                     </span>
                   </div>
                   {item.notes && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-gray-700 dark:text-gray-300 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
                       {item.notes}
                     </p>
                   )}
@@ -232,7 +257,7 @@ export function HistoryPage() {
                     <img
                       src={item.photo_url}
                       alt="Treatment"
-                      className="mt-3 w-full h-32 object-cover rounded-lg"
+                      className="mt-3 w-full h-40 object-cover rounded-xl"
                     />
                   )}
                 </>

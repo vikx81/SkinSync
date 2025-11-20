@@ -1,16 +1,16 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import {
-  Sun,
+  LayoutDashboard,
+  Sparkles,
   Syringe,
-  History,
   Package,
   User,
 } from 'lucide-react';
 
 const navItems = [
-  { to: '/', icon: Sun, label: 'Routine' },
+  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/ai-routine', icon: Sparkles, label: 'AI Routine' },
   { to: '/treatments', icon: Syringe, label: 'Treatments' },
-  { to: '/history', icon: History, label: 'History' },
   { to: '/products', icon: Package, label: 'Products' },
   { to: '/profile', icon: User, label: 'Profile' },
 ];
@@ -22,17 +22,18 @@ export function Layout() {
         <Outlet />
       </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 safe-area-pb">
+      <nav className="fixed bottom-0 left-0 right-0 glass border-t border-gray-200 dark:border-gray-700 safe-area-pb backdrop-blur-xl">
         <div className="flex justify-around items-center h-16">
           {navItems.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
               to={to}
+              end
               className={({ isActive }) =>
-                `flex flex-col items-center justify-center w-full h-full transition-colors ${
+                `flex flex-col items-center justify-center w-full h-full transition-all ${
                   isActive
-                    ? 'text-primary-600'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-primary-500'
+                    ? 'text-primary-600 dark:text-primary-400'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400'
                 }`
               }
             >

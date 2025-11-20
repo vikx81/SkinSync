@@ -5,6 +5,8 @@ import { useAuthStore } from './store/authStore';
 import { useSettingsStore } from './store/settingsStore';
 import { Auth } from './components/Auth';
 import { Layout } from './components/Layout';
+import { DashboardPage } from './pages/DashboardPage';
+import { AIRoutinePage } from './pages/AIRoutinePage';
 import { RoutinePage } from './pages/RoutinePage';
 import { TreatmentsPage } from './pages/TreatmentsPage';
 import { HistoryPage } from './pages/HistoryPage';
@@ -72,7 +74,9 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<RoutinePage />} />
+          <Route index element={<DashboardPage />} />
+          <Route path="ai-routine" element={<AIRoutinePage />} />
+          <Route path="routine" element={<RoutinePage />} />
           <Route path="treatments" element={<TreatmentsPage />} />
           <Route path="history" element={<HistoryPage />} />
           <Route path="products" element={<ProductsPage />} />
