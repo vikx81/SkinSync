@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Check, ChevronRight, ChevronLeft, Sparkles } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Check, ChevronRight, ChevronLeft, Sparkles, PartyPopper } from 'lucide-react';
 import { QUIZ_QUESTIONS, type SkinProfile, type SkinConcern, type SkinGoal } from '../types/skinGoals';
 import toast from 'react-hot-toast';
 
@@ -11,6 +11,7 @@ interface SkinGoalsQuizProps {
 export function SkinGoalsQuiz({ onComplete, onSkip }: SkinGoalsQuizProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const currentQuestion = QUIZ_QUESTIONS[currentStep];
   const isLastStep = currentStep === QUIZ_QUESTIONS.length - 1;
@@ -50,7 +51,7 @@ export function SkinGoalsQuiz({ onComplete, onSkip }: SkinGoalsQuizProps) {
     }
 
     if (isLastStep) {
-      // Complete quiz
+      // Complete quiz and show success screen
       const profile: SkinProfile = {
         skinType: answers.skinType as any,
         concerns: answers.concerns as SkinConcern[],
@@ -60,8 +61,11 @@ export function SkinGoalsQuiz({ onComplete, onSkip }: SkinGoalsQuizProps) {
         completed: true,
         completedAt: new Date().toISOString(),
       };
-      onComplete(profile);
-      toast.success('Skin profile created! 🎉');
+      setShowSuccess(true);
+      // Call onComplete after showing success screen
+      setTimeout(() => {
+        onComplete(profile);
+      }, 2000); // Redirect after 2 seconds
     } else {
       setCurrentStep(currentStep + 1);
     }
@@ -72,6 +76,30 @@ export function SkinGoalsQuiz({ onComplete, onSkip }: SkinGoalsQuizProps) {
       setCurrentStep(currentStep - 1);
     }
   };
+
+  // Success screen
+  if (showSuccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary-50 via-white to-accent-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+        <div className="text-center animate-in fade-in duration-500">
+          <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-primary-500 to-primary-700 mb-6 animate-bounce">
+            <PartyPopper className="w-12 h-12 text-white" />
+          </div>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-3">
+            Skin Profile Created!
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
+            Generating your personalized AI routine...
+          </p>
+          <div className="flex items-center justify-center gap-2">
+            <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+            <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+            <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">

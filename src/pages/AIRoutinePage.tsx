@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { format } from 'date-fns';
-import { Sparkles, Sun, Moon, Edit3, Check, X, AlertCircle, Lightbulb, Camera } from 'lucide-react';
+import { Sparkles, Sun, Moon, Edit3, Check, X, AlertCircle, Lightbulb, Camera, Send, RefreshCw } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import { useRoutines } from '../hooks/useRoutines';
 import { useTreatments } from '../hooks/useTreatments';
@@ -23,6 +23,8 @@ export function AIRoutinePage() {
   const [photoFileAM, setPhotoFileAM] = useState<File | null>(null);
   const [photoFilePM, setPhotoFilePM] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+  const [aiRequest, setAiRequest] = useState('');
+  const [showAiModifier, setShowAiModifier] = useState(false);
 
   const { activeProducts } = useProducts();
   const { addRoutine, getTodayRoutines } = useRoutines();
@@ -130,6 +132,86 @@ export function AIRoutinePage() {
     setSaving(false);
   };
 
+  const handleAiModification = () => {
+    if (!aiRequest.trim()) {
+      toast.error('Please enter a modification request');
+      return;
+    }
+
+    const requestLower = aiRequest.toLowerCase();
+    const newAM = [...customAM];
+    const newPM = [...customPM];
+
+    // Parse the request and modify product selection
+    if (requestLower.includes('moisturiz') || requestLower.includes('hydrat')) {
+      // Add moisturizers
+      const moisturizers = activeProducts.filter(
+        (p) => p.category === 'moisturizer' && !newAM.includes(p.id) && !newPM.includes(p.id)
+      );
+      if (moisturizers.length > 0) {
+        newAM.push(moisturizers[0].id);
+        newPM.push(moisturizers[0].id);
+      }
+    }
+
+    if (requestLower.includes('anti-aging') || requestLower.includes('retinol') || requestLower.includes('aging')) {
+      // Add retinol or anti-aging products
+      const antiAging = activeProducts.filter(
+        (p) => (p.is_retinol || p.category === 'retinol') && !newPM.includes(p.id)
+      );
+      if (antiAging.length > 0 && !newPM.includes(antiAging[0].id)) {
+        newPM.push(antiAging[0].id);
+      }
+    }
+
+    if (requestLower.includes('serum')) {
+      const serums = activeProducts.filter(
+        (p) => p.category === 'serum' && !newAM.includes(p.id) && !newPM.includes(p.id)
+      );
+      if (serums.length > 0) {
+        newAM.push(serums[0].id);
+      }
+    }
+
+    if (requestLower.includes('sunscreen') || requestLower.includes('spf')) {
+      const sunscreens = activeProducts.filter(
+        (p) => p.category === 'sunscreen' && !newAM.includes(p.id)
+      );
+      if (sunscreens.length > 0 && !newAM.includes(sunscreens[0].id)) {
+        newAM.push(sunscreens[0].id);
+      }
+    }
+
+    if (requestLower.includes('simpl') || requestLower.includes('minimal') || requestLower.includes('less')) {
+      // Simplify routine - keep only essentials
+      const essentialCategories = ['cleanser', 'moisturizer', 'sunscreen'];
+      const essentialAM = newAM.filter((id) => {
+        const product = activeProducts.find((p) => p.id === id);
+        return product && essentialCategories.includes(product.category);
+      });
+      const essentialPM = newPM.filter((id) => {
+        const product = activeProducts.find((p) => p.id === id);
+        return product && (essentialCategories.includes(product.category) || product.is_retinol);
+      });
+      setCustomAM(essentialAM);
+      setCustomPM(essentialPM);
+      setAiRequest('');
+      toast.success('✨ Routine simplified to essentials');
+      return;
+    }
+
+    // Check if any changes were made
+    if (JSON.stringify(newAM) === JSON.stringify(customAM) && JSON.stringify(newPM) === JSON.stringify(customPM)) {
+      toast('No matching products found for your request. Try being more specific!', { icon: '🤔' });
+    } else {
+      setCustomAM(newAM);
+      setCustomPM(newPM);
+      toast.success('✨ Routine updated based on your request!');
+    }
+
+    setAiRequest('');
+  };
+
   if (showQuiz) {
     return <SkinGoalsQuiz onComplete={handleQuizComplete} onSkip={handleQuizSkip} />;
   }
@@ -176,6 +258,88 @@ export function AIRoutinePage() {
           >
             Take Skin Quiz for Personalized Recommendations
           </button>
+        )}
+      </div>
+
+      {/* AI Modifier */}
+      <div className="card p-6">
+        <button
+          onClick={() => setShowAiModifier(!showAiModifier)}
+          className="w-full flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            </div>
+            <div className="text-left">
+              <h3 className="font-bold text-gray-900 dark:text-white">AI Routine Modifier</h3>
+              <p className="text-xs text-gray-600 dark:text-gray-400">Ask AI to adjust your routine</p>
+            </div>
+          </div>
+          <RefreshCw className={`w-5 h-5 text-gray-400 transition-transform ${showAiModifier ? 'rotate-180' : ''}`} />
+        </button>
+
+        {showAiModifier && (
+          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+              Tell the AI how you'd like to modify your routine:
+            </p>
+            <div className="flex gap-2 mb-3">
+              <input
+                type="text"
+                value={aiRequest}
+                onChange={(e) => setAiRequest(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleAiModification()}
+                placeholder="e.g., make it more moisturizing, add anti-aging products, simplify routine..."
+                className="input flex-1"
+              />
+              <button
+                onClick={handleAiModification}
+                className="btn-primary px-4"
+                disabled={!aiRequest.trim()}
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => {
+                  setAiRequest('make it more moisturizing');
+                  setTimeout(handleAiModification, 100);
+                }}
+                className="text-xs px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+              >
+                💧 More moisturizing
+              </button>
+              <button
+                onClick={() => {
+                  setAiRequest('add anti-aging products');
+                  setTimeout(handleAiModification, 100);
+                }}
+                className="text-xs px-3 py-1.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors"
+              >
+                ✨ Anti-aging
+              </button>
+              <button
+                onClick={() => {
+                  setAiRequest('simplify routine');
+                  setTimeout(handleAiModification, 100);
+                }}
+                className="text-xs px-3 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
+              >
+                🌿 Simplify
+              </button>
+              <button
+                onClick={() => {
+                  setAiRequest('add more serums');
+                  setTimeout(handleAiModification, 100);
+                }}
+                className="text-xs px-3 py-1.5 bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 rounded-full hover:bg-pink-200 dark:hover:bg-pink-900/50 transition-colors"
+              >
+                💅 More serums
+              </button>
+            </div>
+          </div>
         )}
       </div>
 
