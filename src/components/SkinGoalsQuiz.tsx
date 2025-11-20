@@ -89,7 +89,7 @@ export function SkinGoalsQuiz({ onComplete, onSkip }: SkinGoalsQuizProps) {
             Skin Profile Created!
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
-            Generating your personalized AI routine...
+            Generating your personalized routine...
           </p>
           <div className="flex items-center justify-center gap-2">
             <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>

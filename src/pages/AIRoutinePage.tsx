@@ -14,6 +14,7 @@ import toast from 'react-hot-toast';
 
 export function AIRoutinePage() {
   const [showQuiz, setShowQuiz] = useState(false);
+  const [quizDismissed, setQuizDismissed] = useState(false);
   const [editingAM, setEditingAM] = useState(false);
   const [editingPM, setEditingPM] = useState(false);
   const [customAM, setCustomAM] = useState<string[]>([]);
@@ -51,11 +52,11 @@ export function AIRoutinePage() {
   }, [activeProducts, skinProfile, treatments]);
 
   useEffect(() => {
-    // Check if user needs to take quiz
-    if (!skinProfile && !showQuiz && settings) {
+    // Check if user needs to take quiz (only on initial load)
+    if (!skinProfile && !showQuiz && !quizDismissed && settings) {
       setShowQuiz(true);
     }
-  }, [skinProfile, settings, showQuiz]);
+  }, [skinProfile, settings, showQuiz, quizDismissed]);
 
   useEffect(() => {
     setCustomAM(recommendation.am.products.map((p) => p.id));
@@ -65,14 +66,17 @@ export function AIRoutinePage() {
   const handleQuizComplete = async (profile: SkinProfile) => {
     if (!settings) return;
     await updateSettings({ skin_profile: JSON.stringify(profile) });
+    setQuizDismissed(true);
     setShowQuiz(false);
   };
 
   const handleQuizSkip = () => {
+    setQuizDismissed(true);
     setShowQuiz(false);
   };
 
   const handleRetakeQuiz = () => {
+    setQuizDismissed(false);
     setShowQuiz(true);
   };
 
