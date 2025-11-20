@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { User } from '@supabase/supabase-js';
+import type { User } from '@supabase/supabase-js';
 import { supabase, isDemoMode } from '../lib/supabase';
 import { DEMO_USER_ID } from '../lib/mockData';
 

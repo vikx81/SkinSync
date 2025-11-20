@@ -1,4 +1,4 @@
-import { Product, Routine, Treatment, Photo, UserSettings } from '../types/database';
+import type { Product, Routine, Treatment, Photo, UserSettings } from '../types/database';
 
 // Demo user ID
 export const DEMO_USER_ID = 'demo-user-123';
